@@ -1,27 +1,24 @@
 from flask import Flask, render_template, request
 import tensorflow as tf
 import numpy as np
-from tensorflow.keras.preprocessing import image # type: ignore
+from tensorflow.keras.preprocessing import image 
 import os
 
 app = Flask(__name__)
 
-# Ensure upload folder exists
 UPLOAD_FOLDER = "static/uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-# Load the trained model (FIXED PATH)
-MODEL_PATH = r"C:\VS code\project_folder\content\brain_tumor_cnn.h5"
+MODEL_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "content")
+MODEL_PATH = os.path.join(MODEL_DIR, "brain_tumor_cnn.h5")
 
-# Check if model exists before loading
 if not os.path.exists(MODEL_PATH):
     raise FileNotFoundError(f"Model file not found: {MODEL_PATH}")
 
-# Load model once to prevent reloading every time
 model = tf.keras.models.load_model(MODEL_PATH)
 
-# Function to preprocess the uploaded image
+# Function to preprocess th uploaded image
 def predict_tumor(img_path):
     img = image.load_img(img_path, target_size=(150, 150))  # Resize to match model input
     img_array = image.img_to_array(img) / 255.0
@@ -50,4 +47,4 @@ def index():
     return render_template("index.html", prediction=None, image=None)
 
 if __name__ == "__main__":
-    app.run(debug=True)  # Keep debug=True for testing
+    app.run(host="0.0.0.0", port=5000, debug=True)  
